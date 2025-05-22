@@ -28,6 +28,7 @@ public class UserController {
     public User findUserById(@PathVariable @Positive(message = "ID пользователя должен быть положительным числом") int id) {
         User user = users.get(id);
         if (user == null) {
+            log.info("Пользователь с id " + id + " не найден");
             throw new NotFoundException("Пользователь с id " + id + " не найден");
         }
         return user;
@@ -35,6 +36,11 @@ public class UserController {
 
     @DeleteMapping("/{id}")
     public User deleteUserById(@PathVariable int id) {
+        User user = users.get(id);
+        if (user == null) {
+            log.info("Пользователь с id " + id + " не найден");
+            throw new NotFoundException("Пользователь с id " + id + " не найден");
+        }
         return users.remove(id);
     }
 
