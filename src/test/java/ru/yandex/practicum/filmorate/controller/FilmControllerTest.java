@@ -102,8 +102,7 @@ class FilmControllerTest {
         film.setReleaseDate(LocalDate.of(1895, 12, 27));
 
         // Change from ValidationException to ResponseStatusException
-        assertThrows(ResponseStatusException.class, () -> filmController.addFilm(film),
-                "Should reject film with release date before 1895-12-28");
+        assertThrows(ResponseStatusException.class, () -> filmController.addFilm(film), "Should reject film with release date before 1895-12-28");
     }
 
     @Test
