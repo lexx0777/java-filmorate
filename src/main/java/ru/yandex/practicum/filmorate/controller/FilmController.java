@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.controller;
 
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Positive;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
@@ -26,7 +27,7 @@ public class FilmController {
     }
 
     @GetMapping("/{id}")
-    public Film findFilmById(@PathVariable int id) {
+    public Film findFilmById(@PathVariable @Positive(message = "ID фильма должен быть положительным числом") int id) {
         Film film = films.get(id);
         if (film == null) {
             throw new NotFoundException("Фильм с id " + id + " не найден");

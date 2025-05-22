@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.controller;
 
 import jakarta.validation.*;
+import jakarta.validation.constraints.Positive;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
@@ -24,7 +25,7 @@ public class UserController {
     }
 
     @GetMapping("/{id}")
-    public User findUserById(@PathVariable int id) {
+    public User findUserById(@PathVariable @Positive(message = "ID пользователя должен быть положительным числом") int id) {
         User user = users.get(id);
         if (user == null) {
             throw new NotFoundException("Пользователь с id " + id + " не найден");

@@ -1,5 +1,7 @@
 package ru.yandex.practicum.filmorate.controller;
 
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.FieldError;
@@ -11,6 +13,7 @@ import ru.yandex.practicum.filmorate.exception.ValidationException;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 @RestControllerAdvice
 @Slf4j
@@ -25,6 +28,20 @@ public class ErrorHandler {
             String errorMessage = error.getDefaultMessage();
             errors.put(fieldName, errorMessage);
             log.warn("Ошибка валидации поля {}: {}", fieldName, errorMessage);
+        });
+        return errors;
+    }
+
+    @ExceptionHandler(ConstraintViolationException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public Map<String, String> handleConstraintViolationException(ConstraintViolationException ex) {
+        Map<String, String> errors = new HashMap<>();
+        Set<ConstraintViolation<?>> violations = ex.getConstraintViolations();
+        violations.forEach(violation -> {
+            String fieldName = violation.getPropertyPath().toString();
+            String errorMessage = violation.getMessage();
+            errors.put(fieldName, errorMessage);
+            log.warn("Ошибка валидации параметра {}: {}", fieldName, errorMessage);
         });
         return errors;
     }

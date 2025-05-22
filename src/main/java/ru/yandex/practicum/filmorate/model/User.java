@@ -1,9 +1,6 @@
 package ru.yandex.practicum.filmorate.model;
 
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.PastOrPresent;
-import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.*;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
@@ -15,6 +12,7 @@ import java.time.chrono.ChronoLocalDate;
 @Data
 @Slf4j
 public class User {
+    @Positive(message = "id пользователя должен быть положительным числом")
     private int id;
 
     @NotBlank(message = "Электронная почта не может быть пустой")
