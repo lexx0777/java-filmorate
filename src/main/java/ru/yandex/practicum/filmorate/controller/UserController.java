@@ -3,40 +3,45 @@ package ru.yandex.practicum.filmorate.controller;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.annotation.Validated;
+import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 import org.springframework.web.bind.annotation.*;
-import java.util.ArrayList;
-import java.util.List;
+
+import java.util.*;
 
 @RestController
 @RequestMapping("/users")
 @Validated
 @Slf4j
 public class UserController {
-    private final List<User> users = new ArrayList<>();
+    private final Map<Integer, User> users = new HashMap<>();
     private int nextId = 1;
 
     @GetMapping
-    public Collection<UserApiDto> getUsers() {
-        return users.getUsers();
+    public Collection<User> findAll() {
+        return users.values();
     }
 
     @GetMapping("/{id}")
-    public User getUserById(@PathVariable Long id) {
-        return users.getUserById(id);
+    public User findUserById(@PathVariable int id) {
+        User user = users.get(id);
+        if (user == null) {
+            throw new NotFoundException("Пользователь с id " + id + " не найден");
+        }
+        return user;
     }
 
     @DeleteMapping("/{id}")
-    public User deleteUserById(@PathVariable Long id) {
-        return users.deleteUserById(id);
+    public User deleteUserById(@PathVariable int id) {
+        return users.remove(id);
     }
 
     @PostMapping
     public User createUser(@Valid @RequestBody User user) {
         log.info("Создание нового пользователя: {}", user);
         try {
-            user.setId(nextId++);
-            users.add(user);
+            user.setId(getNextId());
+            users.put(user.getId(), user);
             log.info("Пользователь успешно создан: {}", user);
             return user;
         } catch (Exception e) {
@@ -46,7 +51,33 @@ public class UserController {
     }
 
     @PutMapping
-    public User updateUser(@Valid @RequestBody User user) {
-        // логика обновления
+    public User updateUser(@Valid @RequestBody User newUser) {
+        log.info("Обновление пользователя: {}", newUser);
+        try {
+            if (users.containsKey(newUser.getId())) {
+                User oldUser = users.get(newUser.getId());
+                // если user найден и все условия соблюдены, обновляем её содержимое
+                //todo проверить email и login на уникальность
+                oldUser.setEmail(newUser.getEmail());
+                oldUser.setLogin(newUser.getLogin());
+                oldUser.setBirthday(newUser.getBirthday());
+                oldUser.setName(newUser.getName());
+                return oldUser;
+            }
+            throw new NotFoundException("Пользователь с id = " + newUser.getId() + " не найден");
+        } catch (Exception e) {
+            log.error("Ошибка при обновлении пользователя: {}", e.getMessage(), e);
+            throw e;
+        }
+    }
+
+    // вспомогательный метод для генерации идентификатора нового поста
+    private Integer getNextId() {
+        int currentMaxId = users.keySet()
+                .stream()
+                .mapToInt(id -> id)
+                .max()
+                .orElse(0);
+        return  ++currentMaxId;
     }
 }
