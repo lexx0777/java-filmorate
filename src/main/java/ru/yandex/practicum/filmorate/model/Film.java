@@ -28,6 +28,15 @@ public class Film {
     private int duration;
 
     public void validate() {
+        if (releaseDate == null) {
+            throw new ValidationException("Дата релиза обязательна");
+        }
+        if (name == null || name.equals("")) {
+            throw new ValidationException("Название фильма не может быть пустым");
+        }
+        if (duration <= 0) {
+            throw new ValidationException("Продолжительность фильма должна быть положительным числом");
+        }
         if (releaseDate.isBefore(LocalDate.of(1895, 12, 28))) {
             log.error("Validation failed: Дата релиза {} раньше допустимой (1895-12-28)", releaseDate);
             throw new ValidationException("Дата релиза не может быть раньше 28 декабря 1895 года");

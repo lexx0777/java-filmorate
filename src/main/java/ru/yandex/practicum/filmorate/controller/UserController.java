@@ -15,7 +15,6 @@ import java.util.*;
 @Slf4j
 public class UserController {
     private final Map<Integer, User> users = new HashMap<>();
-    private final int nextId = 1;
 
     @GetMapping
     public Collection<User> findAll() {
@@ -57,7 +56,7 @@ public class UserController {
             if (users.containsKey(newUser.getId())) {
                 User oldUser = users.get(newUser.getId());
                 // если user найден и все условия соблюдены, обновляем её содержимое
-                //todo проверить email и login на уникальность
+                //todo проверить email и login на уникальность - потом
                 oldUser.setEmail(newUser.getEmail());
                 oldUser.setLogin(newUser.getLogin());
                 oldUser.setBirthday(newUser.getBirthday());
@@ -71,7 +70,7 @@ public class UserController {
         }
     }
 
-    // вспомогательный метод для генерации идентификатора нового поста
+    // вспомогательный метод для генерации нового id
     private Integer getNextId() {
         int currentMaxId = users.keySet()
                 .stream()
