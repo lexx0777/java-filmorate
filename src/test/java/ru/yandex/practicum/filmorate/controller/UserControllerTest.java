@@ -95,14 +95,15 @@ class UserControllerTest {
         assertThrows(NotFoundException.class, () -> userController.findUserById(user.getId()),
                 "Should remove user from storage");
     }
-/*
+
+    /*
     @ParameterizedTest
     @MethodSource("invalidUsersProvider")
     void shouldRejectInvalidUsers(User invalidUser) {
         assertThrows(ResponseStatusException.class, () -> userController.createUser(invalidUser),
                 "Should reject invalid user");
-    }
-*/
+    }*/
+
     static Stream<User> invalidUsersProvider() {
         return Stream.of(
                 createUser("", "login", LocalDate.of(1990, 1, 1)), // Empty email
