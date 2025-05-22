@@ -31,7 +31,7 @@ public class Film {
         if (releaseDate == null) {
             throw new ValidationException("Дата релиза обязательна");
         }
-        if (name == null || name.equals("")) {
+        if (name == null || name.isEmpty()) {
             throw new ValidationException("Название фильма не может быть пустым");
         }
         if (duration <= 0) {
