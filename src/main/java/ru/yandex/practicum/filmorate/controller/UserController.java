@@ -15,7 +15,7 @@ import java.util.*;
 @Slf4j
 public class UserController {
     private final Map<Integer, User> users = new HashMap<>();
-    private int nextId = 1;
+    private final int nextId = 1;
 
     @GetMapping
     public Collection<User> findAll() {
