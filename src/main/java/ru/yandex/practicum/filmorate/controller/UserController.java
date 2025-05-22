@@ -14,7 +14,6 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/users")
-@Validated
 @Slf4j
 public class UserController {
     private final Map<Integer, User> users = new HashMap<>();
@@ -25,7 +24,7 @@ public class UserController {
     }
 
     @GetMapping("/{id}")
-    public User findUserById(@PathVariable @Positive(message = "ID пользователя должен быть положительным числом") int id) {
+    public User findUserById(@PathVariable int id) {
         User user = users.get(id);
         if (user == null) {
             log.info("Пользователь с id " + id + " не найден");

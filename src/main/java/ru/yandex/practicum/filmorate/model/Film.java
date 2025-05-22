@@ -13,7 +13,6 @@ import java.time.LocalDate;
 @Data
 @Slf4j
 public class Film {
-    @Positive(message = "id фильма должен быть положительным числом")
     private int id;
 
     @NotBlank(message = "Название фильма не может быть пустым")

@@ -12,7 +12,6 @@ import java.time.chrono.ChronoLocalDate;
 @Data
 @Slf4j
 public class User {
-    @Positive(message = "id пользователя должен быть положительным числом")
     private int id;
 
     @NotBlank(message = "Электронная почта не может быть пустой")

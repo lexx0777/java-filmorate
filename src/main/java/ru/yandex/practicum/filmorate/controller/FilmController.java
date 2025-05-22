@@ -16,7 +16,6 @@ import java.util.*;
 
 @RestController
 @RequestMapping("/films")
-@Validated
 @Slf4j
 public class FilmController {
     private final Map<Integer, Film> films = new HashMap<>();
@@ -27,7 +26,7 @@ public class FilmController {
     }
 
     @GetMapping("/{id}")
-    public Film findFilmById(@PathVariable @Positive(message = "ID фильма должен быть положительным числом") int id) {
+    public Film findFilmById(@PathVariable int id) {
         Film film = films.get(id);
         if (film == null) {
             throw new NotFoundException("Фильм с id " + id + " не найден");
