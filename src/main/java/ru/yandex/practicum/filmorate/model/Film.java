@@ -29,12 +29,15 @@ public class Film {
 
     public void validate() {
         if (releaseDate == null) {
+            log.error("Validation failed: Дата релиза обязательна");
             throw new ValidationException("Дата релиза обязательна");
         }
         if (name == null || name.isEmpty()) {
+            log.error("Validation failed: Название фильма не может быть пустым");
             throw new ValidationException("Название фильма не может быть пустым");
         }
         if (duration <= 0) {
+            log.error("Validation failed: Продолжительность фильма должна быть положительным числом");
             throw new ValidationException("Продолжительность фильма должна быть положительным числом");
         }
         if (releaseDate.isBefore(LocalDate.of(1895, 12, 28))) {
