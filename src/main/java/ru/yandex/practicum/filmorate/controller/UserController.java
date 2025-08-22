@@ -57,9 +57,9 @@ public class UserController {
                         .collect(Collectors.joining(", "));
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, errorMessage);
             }
-            user.validate();
-            user.setId(getNextId());
-            users.put(user.getId(), user);
+            //user.validate();
+            user.setId((long) getNextId());
+            users.put(user.getId().intValue(), user);
             log.info("Пользователь успешно создан: {}", user);
             return user;
         } catch (Exception e) {

@@ -42,9 +42,9 @@ public class FilmController {
                         "Максимальная длина описания — 200 символов");
             }
 
-            film.validate();
-            film.setId(getNextId());
-            films.put(film.getId(), film);
+            //film.validate();
+            film.setId((long) getNextId());
+            films.put(film.getId().intValue(), film);
             log.info("Фильм успешно добавлен: {}", film);
             return film;
         } catch (ValidationException e) {
