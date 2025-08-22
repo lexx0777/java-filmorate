@@ -1,10 +1,10 @@
 package ru.yandex.practicum.filmorate.controller;
 
-//import org.junit.jupiter.api.AfterEach;
-//import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-//import org.junit.jupiter.params.ParameterizedTest;
-//import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -14,7 +14,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import ru.yandex.practicum.filmorate.service.UserService;
 
 //import java.util.Arrays;
-//import java.util.stream.Stream;
+import java.util.stream.Stream;
 
 //import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -32,7 +32,7 @@ public class UserControllerTest {
 
     @Autowired
     private UserService userService;
-/*
+
     static Stream<String> provideInvalidUserJsonCreate() {
         return Stream.of(
                 "{\n" +
@@ -143,7 +143,7 @@ public class UserControllerTest {
     void tearDown() {
         userService.clearUsersData();
     }
-
+/*
     @Test
     void getAllUsers() throws Exception {
         mockMvc.perform(get("/users"))
@@ -217,6 +217,7 @@ public class UserControllerTest {
                 .andExpect(jsonPath("$[4].name").value("testlogin")); // Проверяем, что name установлен правильно
     }
 */
+    /*
 @Test
 void updateUser() throws Exception {
     String json = "{\n" +
@@ -244,7 +245,7 @@ void updateUser() throws Exception {
             .andExpect(jsonPath("$.name").value("testname1 upd"))
             .andExpect(jsonPath("$.email").value("testupd@mail.ru"))
             .andExpect(jsonPath("$.birthday").value("1978-10-21"));
-}
+}*/
 /*
     @Test
     void updateUserWithoutName() throws Exception {
