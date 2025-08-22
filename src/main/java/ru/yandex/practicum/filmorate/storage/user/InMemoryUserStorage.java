@@ -38,7 +38,7 @@ public class InMemoryUserStorage implements UserStorage {
         Optional.ofNullable(newUser.getEmail()).ifPresent(oldUser::setEmail);
         Optional.ofNullable(newUser.getBirthday()).ifPresent(oldUser::setBirthday);
         Optional.ofNullable(newUser.getLogin()).ifPresent(oldUser::setLogin);
-        log.info("Обновлен юзер: {}", newUser);
+        log.info("Обновлен пользователь: {}", newUser);
         return oldUser;
     }
 
