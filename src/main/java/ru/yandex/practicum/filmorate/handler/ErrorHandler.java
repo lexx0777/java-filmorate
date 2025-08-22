@@ -5,10 +5,12 @@ import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.FieldError;
+import org.springframework.web.ErrorResponse;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 
 import java.util.HashMap;
@@ -58,5 +60,12 @@ public class ErrorHandler {
     public Map<String, String> handleOtherExceptions(Exception ex) {
         log.error("Внутренняя ошибка сервера: {}", ex.getMessage(), ex);
         return Map.of("error", "Внутренняя ошибка сервера");
+    }
+
+    @ExceptionHandler(NotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public Map<String, String> handleNotFoundException(final NotFoundException ex) {
+        log.warn("Не найдено: {}", ex.getMessage());
+        return Map.of("error", "not found", "message", ex.getMessage());
     }
 }

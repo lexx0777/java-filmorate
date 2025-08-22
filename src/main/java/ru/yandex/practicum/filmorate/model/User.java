@@ -1,9 +1,6 @@
 package ru.yandex.practicum.filmorate.model;
 
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.PastOrPresent;
-import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -18,6 +15,7 @@ import java.util.Set;
 @Data
 @NoArgsConstructor
 public class User {
+    //@NotNull(message = "ID обязателен для обновления")
     private Long id;
     private Set<Long> friends = new HashSet<>();
 
