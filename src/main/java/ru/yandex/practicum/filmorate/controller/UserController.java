@@ -1,20 +1,25 @@
 package ru.yandex.practicum.filmorate.controller;
 
 import jakarta.validation.*;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 import org.springframework.web.bind.annotation.*;
+import ru.yandex.practicum.filmorate.service.UserService;
+
 import java.util.*;
 import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/users")
 @Slf4j
+@RequiredArgsConstructor
 public class UserController {
     private final Map<Integer, User> users = new HashMap<>();
+    private final UserService userService;
 
     @GetMapping
     public Collection<User> findAll() {
@@ -88,6 +93,28 @@ public class UserController {
             log.error("Ошибка при обновлении пользователя: {}", e.getMessage(), e);
             throw e;
         }
+    }
+
+    @PutMapping("/{id}/friends/{friendId}")
+    public Map<String, String> addFriend(@PathVariable Long id, @PathVariable Long friendId) {
+        userService.addFriend(id, friendId);
+        return Map.of("status", "success");
+    }
+
+    @DeleteMapping("/{id}/friends/{friendId}")
+    public Map<String, String> removeFriend(@PathVariable Long id, @PathVariable Long friendId) {
+        userService.removeFriend(id, friendId);
+        return Map.of("status", "success");
+    }
+
+    @GetMapping("/{id}/friends")
+    public Collection<User> getUserFriends(@PathVariable Long id) {
+        return userService.getUserFriends(id);
+    }
+
+    @GetMapping("/{id}/friends/common/{otherId}")
+    public Collection<User> getCommonFriends(@PathVariable Long id, @PathVariable Long otherId) {
+        return userService.getCommonUserFriends(id, otherId);
     }
 
     // вспомогательный метод для генерации нового id

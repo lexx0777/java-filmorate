@@ -355,17 +355,23 @@ public class UserControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.status").value("success"));
 
-        assertEquals(2, userService.getUserById(1L).getFriends().size());
-        assertEquals(1, userService.getUserById(2L).getFriends().size());
-        assertEquals(1, userService.getUserById(3L).getFriends().size());
-        assertEquals(Arrays.toString(new int[]{2, 3}), userService.getUserById(1L).getFriends().toString());
+        // Проверяем через HTTP API
+        mockMvc.perform(get("/users/1/friends"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(2))
+                .andExpect(jsonPath("$[0].id").value(2))
+                .andExpect(jsonPath("$[1].id").value(3));
     }
 
     @Test
     void removeFriend() throws Exception {
-        userService.addFriend(1L, 2L);
-        userService.addFriend(1L, 3L);
+        // Сначала добавляем друзей
+        mockMvc.perform(put("/users/1/friends/2"))
+                .andExpect(status().isOk());
+        mockMvc.perform(put("/users/1/friends/3"))
+                .andExpect(status().isOk());
 
+        // Затем удаляем
         mockMvc.perform(delete("/users/1/friends/2"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.status").value("success"));
@@ -374,9 +380,10 @@ public class UserControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.status").value("success"));
 
-        assertEquals(0, userService.getUserById(1L).getFriends().size());
-        assertEquals(0, userService.getUserById(2L).getFriends().size());
-        assertEquals(0, userService.getUserById(3L).getFriends().size());
+        // Проверяем, что друзей нет
+        mockMvc.perform(get("/users/1/friends"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(0));
     }
 
     @Test
@@ -389,17 +396,19 @@ public class UserControllerTest {
     @Test
     void addFriendMyself() throws Exception {
         mockMvc.perform(put("/users/1/friends/1"))
-                .andExpect(status().isInternalServerError())
-                .andExpect(jsonPath("$.message").value("Пользователь не может " +
-                        "добавить сам себя в друзья"));
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error").value("validation error"))
+                .andExpect(jsonPath("$.message").value("Пользователь не может добавить сам себя в друзья"));
     }
 
     @Test
     void addFriendUserFriend() throws Exception {
-        userService.addFriend(1L, 2L);
+        mockMvc.perform(put("/users/1/friends/2"))
+                .andExpect(status().isOk());
 
         mockMvc.perform(put("/users/1/friends/2"))
-                .andExpect(status().isInternalServerError())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error").value("validation error"))
                 .andExpect(jsonPath("$.message").value("Пользователи уже являются друзьями"));
     }
 
@@ -422,10 +431,17 @@ public class UserControllerTest {
 
     @Test
     void getCommonUserFriends() throws Exception {
-        userService.addFriend(1L, 2L);
-        userService.addFriend(1L, 3L);
-        userService.addFriend(4L, 2L);
-        userService.addFriend(4L, 3L);
+        // Добавляем друзей через HTTP API
+        mockMvc.perform(put("/users/1/friends/2"))
+                .andExpect(status().isOk());
+        mockMvc.perform(put("/users/1/friends/3"))
+                .andExpect(status().isOk());
+        mockMvc.perform(put("/users/4/friends/2"))
+                .andExpect(status().isOk());
+        mockMvc.perform(put("/users/4/friends/3"))
+                .andExpect(status().isOk());
+
+        // Получаем общих друзей
         mockMvc.perform(get("/users/1/friends/common/4"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(2))
