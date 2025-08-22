@@ -13,12 +13,14 @@ import org.springframework.boot.test.context.SpringBootTest;
 import static org.junit.jupiter.api.Assertions.*;
 
 import org.springframework.http.MediaType;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.servlet.MockMvc;
-import ru.yandex.practicum.filmorate.model.User;
+//import ru.yandex.practicum.filmorate.model.User;
 
 import ru.yandex.practicum.filmorate.service.UserService;
+//import ru.yandex.practicum.filmorate.controller.UserController;
 
-import java.time.LocalDate;
+//import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.stream.Stream;
 
@@ -28,6 +30,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
+@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 public class UserControllerTest {
 
     @Autowired
@@ -119,12 +122,34 @@ public class UserControllerTest {
         );
     }
 
-    @BeforeEach
+    /*@BeforeEach
     void setUp() {
         userService.createUser(new User(1L, "test@mail.ru", "testlogin1", "testname1", LocalDate.of(1900, 12, 25)));
         userService.createUser(new User(2L, "test2@mail.ru", "testlogin2", "testname2", LocalDate.of(1901, 10, 21)));
         userService.createUser(new User(3L, "test3@mail.ru", "testlogin3", "testname3", LocalDate.of(1900, 12, 25)));
         userService.createUser(new User(4L, "test4@mail.ru", "testlogin4", "testname4", LocalDate.of(1901, 10, 21)));
+    } */
+    @BeforeEach
+    void setUp() throws Exception {
+        // Создаем пользователей через HTTP API
+        createUserViaHttp(1L, "test@mail.ru", "testlogin1", "testname1", "1900-12-25");
+        createUserViaHttp(2L, "test2@mail.ru", "testlogin2", "testname2", "1901-10-21");
+        createUserViaHttp(3L, "test3@mail.ru", "testlogin3", "testname3", "1900-12-25");
+        createUserViaHttp(4L, "test4@mail.ru", "testlogin4", "testname4", "1901-10-21");
+    }
+
+    private void createUserViaHttp(Long id, String email, String login, String name, String birthday) throws Exception {
+        String json = String.format("{\n" +
+                "  \"id\": %d,\n" +
+                "  \"login\": \"%s\",\n" +
+                "  \"name\": \"%s\",\n" +
+                "  \"email\": \"%s\",\n" +
+                "  \"birthday\": \"%s\"\n" +
+                "}", id, login, name, email, birthday);
+
+        mockMvc.perform(post("/users")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json));
     }
 
     @AfterEach
@@ -380,14 +405,19 @@ public class UserControllerTest {
 
     @Test
     void getUserFriends() throws Exception {
-        userService.addFriend(1L, 2L);
-        userService.addFriend(1L, 3L);
+        // Добавляем друзей через HTTP API
+        mockMvc.perform(put("/users/1/friends/2"))
+                .andExpect(status().isOk());
 
+        mockMvc.perform(put("/users/1/friends/3"))
+                .andExpect(status().isOk());
+
+        // Получаем друзей через HTTP API
         mockMvc.perform(get("/users/1/friends"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(2))
                 .andExpect(jsonPath("$[0].id").value(2))
-                .andExpect(jsonPath("$[1].name").value("testname3"));
+                .andExpect(jsonPath("$[1].id").value(3));
     }
 
     @Test

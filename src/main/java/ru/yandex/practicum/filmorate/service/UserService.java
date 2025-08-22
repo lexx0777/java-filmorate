@@ -54,8 +54,6 @@ public class UserService {
         }
 
         return userStorage.updateUser(newUser);
-
-
     }
 
     public void addFriend(Long id, Long friendId) {

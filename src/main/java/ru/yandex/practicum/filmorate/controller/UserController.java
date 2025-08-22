@@ -42,6 +42,7 @@ public class UserController {
     }
 
     @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
     public User createUser(@Valid @RequestBody User user) {
         log.info("Создание нового пользователя: {}", user);
         try {
@@ -72,8 +73,8 @@ public class UserController {
     public User updateUser(@Valid @RequestBody User newUser) {
         log.info("Обновление пользователя: {}", newUser);
         try {
-            if (users.containsKey(newUser.getId())) {
-                User oldUser = users.get(newUser.getId());
+            if (users.containsKey(newUser.getId().intValue())) {
+                User oldUser = users.get(newUser.getId().intValue());
                 // если user найден и все условия соблюдены, обновляем её содержимое
                 //todo проверить email и login на уникальность - потом
                 oldUser.setEmail(newUser.getEmail());
