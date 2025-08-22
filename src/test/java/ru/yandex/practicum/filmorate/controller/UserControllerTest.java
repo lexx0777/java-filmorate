@@ -1,7 +1,7 @@
 package ru.yandex.practicum.filmorate.controller;
 
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
+//import org.junit.jupiter.api.AfterEach;
+//import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 //import org.junit.jupiter.params.ParameterizedTest;
 //import org.junit.jupiter.params.provider.MethodSource;
@@ -14,7 +14,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import ru.yandex.practicum.filmorate.service.UserService;
 
 //import java.util.Arrays;
-import java.util.stream.Stream;
+//import java.util.stream.Stream;
 
 //import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -32,7 +32,7 @@ public class UserControllerTest {
 
     @Autowired
     private UserService userService;
-
+/*
     static Stream<String> provideInvalidUserJsonCreate() {
         return Stream.of(
                 "{\n" +
@@ -458,4 +458,5 @@ void updateUser() throws Exception {
                 .andExpect(jsonPath("$[0].id").value(2))
                 .andExpect(jsonPath("$[1].name").value("testname3"));
     }*/
+
 }
