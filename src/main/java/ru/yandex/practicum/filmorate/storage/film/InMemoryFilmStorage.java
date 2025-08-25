@@ -21,9 +21,7 @@ public class InMemoryFilmStorage implements FilmStorage {
     }
 
     public Optional<Film> getFilm(Long id) {
-        return films.values().stream()
-                .filter(film -> film.getId().equals(id))
-                .findFirst();
+        return Optional.ofNullable(films.get(id));
     }
 
     public Film addFilm(Film film) {

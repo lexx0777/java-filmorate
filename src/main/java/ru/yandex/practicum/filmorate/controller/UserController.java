@@ -5,7 +5,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.response.SuccessResponse;
 import ru.yandex.practicum.filmorate.service.UserService;
 
 import java.util.Collection;
@@ -39,15 +38,13 @@ public class UserController {
     }
 
     @PutMapping("/{id}/friends/{friendId}")
-    public SuccessResponse addFriend(@PathVariable Long id, @PathVariable Long friendId) {
+    public void addFriend(@PathVariable Long id, @PathVariable Long friendId) {
         userService.addFriend(id, friendId);
-        return new SuccessResponse();
     }
 
     @DeleteMapping("/{id}/friends/{friendId}")
-    public SuccessResponse removeFriend(@PathVariable Long id, @PathVariable Long friendId) {
+    public void removeFriend(@PathVariable Long id, @PathVariable Long friendId) {
         userService.removeFriend(id, friendId);
-        return new SuccessResponse();
     }
 
     @GetMapping("/{id}/friends")

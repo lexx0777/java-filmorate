@@ -20,9 +20,7 @@ public class InMemoryUserStorage implements UserStorage {
     }
 
     public Optional<User> getUser(Long id) {
-        return users.values().stream()
-                .filter(user -> user.getId().equals(id))
-                .findFirst();
+        return Optional.ofNullable(users.get(id));
     }
 
     public User addUser(User user) {
