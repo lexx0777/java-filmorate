@@ -2,51 +2,40 @@ package ru.yandex.practicum.filmorate.model;
 
 import jakarta.validation.constraints.*;
 import lombok.Data;
-import lombok.extern.slf4j.Slf4j;
-import ru.yandex.practicum.filmorate.exception.ValidationException;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.chrono.ChronoLocalDate;
+import java.util.HashSet;
+import java.util.Set;
+
 
 @Data
-@Slf4j
+@NoArgsConstructor
 public class User {
-    private int id;
+    //@NotNull(message = "ID обязателен для обновления")
+    private Long id;
+    private Set<Long> friends = new HashSet<>();
 
+    @Email(message = "Электронная почта должна соответствовать формату электронного адреса")
     @NotBlank(message = "Электронная почта не может быть пустой")
-    @Email(message = "Электронная почта должна содержать символ @")
     private String email;
 
     @NotBlank(message = "Логин не может быть пустым")
     @Pattern(regexp = "\\S+", message = "Логин не может содержать пробелы")
     private String login;
-
     private String name;
 
     @PastOrPresent(message = "Дата рождения не может быть в будущем")
     private LocalDate birthday;
 
-    public String getName() {
-        return name == null || name.isBlank() ? login : name;
+    public User(Long id, String email, String login, String name, LocalDate birthday) {
+        this.id = id;
+        this.email = email;
+        this.login = login;
+        this.name = name;
+        this.birthday = birthday;
     }
 
     public void validate() {
-        if (login == null) {
-            log.error("Validation failed: Логин не может быть пустым");
-            throw new ValidationException("Логин не может быть пустым");
-        }
-        if (email == null || email.isEmpty()) {
-            log.error("Validation failed: email не может быть пустым");
-            throw new ValidationException("email не может быть пустым");
-        }
-        if (!email.contains("@")) {
-            log.error("Validation failed: email не корректен");
-            throw new ValidationException("email не корректен");
-        }
-        if (birthday.isAfter(ChronoLocalDate.from(LocalDateTime.now()))) {
-            log.error("Validation failed: Дата рождения не может быть в будущем");
-            throw new ValidationException("Дата рождения не может быть в будущем");
-        }
     }
 }
