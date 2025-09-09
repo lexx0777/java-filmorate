@@ -20,7 +20,9 @@ public class InMemoryUserStorage implements UserStorage {
     }
 
     public Optional<User> getUser(Long id) {
-        return Optional.ofNullable(users.get(id));
+        return users.values().stream()
+                .filter(user -> user.getId().equals(id))
+                .findFirst();
     }
 
     public User addUser(User user) {
@@ -36,8 +38,18 @@ public class InMemoryUserStorage implements UserStorage {
         Optional.ofNullable(newUser.getEmail()).ifPresent(oldUser::setEmail);
         Optional.ofNullable(newUser.getBirthday()).ifPresent(oldUser::setBirthday);
         Optional.ofNullable(newUser.getLogin()).ifPresent(oldUser::setLogin);
-        log.info("Обновлен пользователь: {}", newUser);
+        log.info("Обновлен юзер: {}", newUser);
         return oldUser;
+    }
+
+    public void addFriend(Long userId, Long friendId) {
+        User user = users.get(userId);
+        user.getFriends().add(friendId);
+    }
+
+    public void deleteFriend(Long userId, Long friendId) {
+        User user = users.get(userId);
+        user.getFriends().remove(friendId);
     }
 
     public void clearData() {

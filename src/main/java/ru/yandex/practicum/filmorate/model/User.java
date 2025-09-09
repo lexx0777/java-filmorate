@@ -12,7 +12,7 @@ import java.util.Set;
 @Data
 @NoArgsConstructor
 public class User {
-    //@NotNull(message = "ID обязателен для обновления")
+
     private Long id;
     private Set<Long> friends = new HashSet<>();
 
