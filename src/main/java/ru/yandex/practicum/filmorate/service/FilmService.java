@@ -38,7 +38,6 @@ public class FilmService {
     public Film createFilm(Film film) {
         log.info("Добавлен фильм: {}", film);
         return filmStorage.addFilm(film);
-
     }
 
     public Film updateFilm(Film newFilm) {
