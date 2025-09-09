@@ -49,7 +49,7 @@ public class FilmorateApplicationTests {
 	private final UserDbStorage userDbStorage;
 	private final GenreDbStorage genreDbStorage;
 	private final MpaDbStorage mpaDbStorage;
-/*
+
 	@Test
 	public void testFindUserById() {
 		Optional<User> userOptional = userDbStorage.getUser(1L);
@@ -346,5 +346,4 @@ public class FilmorateApplicationTests {
 		Collection<FilmGenre> genres = genreDbStorage.getGenres();
 		assertThat(genres).isNotEmpty().hasSize(6);
 	}
- */
 }
