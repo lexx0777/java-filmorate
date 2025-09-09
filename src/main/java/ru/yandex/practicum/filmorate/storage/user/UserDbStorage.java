@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.storage.user;
 
+import org.springframework.context.annotation.Primary;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.model.User;
@@ -10,7 +11,8 @@ import java.sql.Date;
 import java.util.Collection;
 import java.util.Optional;
 
-@Repository("UserDbStorage")
+@Repository//("UserDbStorage")
+@Primary
 public class UserDbStorage extends BaseDbStorage<User> implements UserStorage {
 
     private static final String FIND_BY_ID = "SELECT u.*, " +
