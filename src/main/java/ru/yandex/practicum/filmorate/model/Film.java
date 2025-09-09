@@ -10,10 +10,6 @@ import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-/**
- * Film.
- */
-
 @Data
 @NoArgsConstructor
 public class Film {
