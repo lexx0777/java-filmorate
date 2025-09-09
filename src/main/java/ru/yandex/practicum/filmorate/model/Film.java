@@ -10,6 +10,9 @@ import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+/**
+ * Film.
+ */
 
 @Data
 @NoArgsConstructor
@@ -29,6 +32,7 @@ public class Film {
     private Integer duration;
 
     private Mpa mpa;
+
     private LinkedHashSet<FilmGenre> genres;
 
     public Film(Long id, String name, String description, LocalDate releaseDate, Integer duration, Mpa mpa,
@@ -49,8 +53,5 @@ public class Film {
             return true;
         }
         return releaseDate.isAfter(LocalDate.of(1895, 12, 28));
-    }
-
-    public void validate() {
     }
 }

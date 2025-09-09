@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate;
 
+
 import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -345,6 +346,5 @@ public class FilmorateApplicationTests {
 		Collection<FilmGenre> genres = genreDbStorage.getGenres();
 		assertThat(genres).isNotEmpty().hasSize(6);
 	}
-
  */
 }
