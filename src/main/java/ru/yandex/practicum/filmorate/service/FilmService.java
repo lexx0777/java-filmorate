@@ -62,6 +62,9 @@ public class FilmService {
             throw new OtherException("Пользователь уже ставил лайк фильму");
         }
 
+        // Добавляем лайк в БД
+        filmStorage.addLikeFilm(filmId, userId);
+
         log.info("Пользователь с id {} поставил лайк фильму с id {}", userId, filmId);
     }
 
@@ -70,6 +73,9 @@ public class FilmService {
             log.warn("Пользователь с id {} не ставил лайк фильму id {}", userId, filmId);
             throw new OtherException("Пользователь не ставил лайк фильму");
         }
+
+        // Удаляем лайк из БД
+        filmStorage.deleteLikeFilm(filmId, userId);
 
         log.info("Пользователь с id {} удалил свой лайк у фильма с id {}", userId, filmId);
     }
