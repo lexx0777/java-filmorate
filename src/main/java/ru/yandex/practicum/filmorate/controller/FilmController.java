@@ -10,7 +10,7 @@ import ru.yandex.practicum.filmorate.service.FilmService;
 
 import java.util.Collection;
 
-@Primary
+//@Primary
 @RestController
 @RequestMapping(path = "/films")
 @RequiredArgsConstructor
