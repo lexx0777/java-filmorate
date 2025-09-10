@@ -1,7 +1,8 @@
 package ru.yandex.practicum.filmorate.service;
 
-import lombok.RequiredArgsConstructor;
+//import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+//import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.OtherException;
@@ -14,12 +15,17 @@ import java.util.Comparator;
 
 @Service
 @Slf4j
-@RequiredArgsConstructor
+//@RequiredArgsConstructor
 public class FilmService {
+    //@Qualifier("filmDbStorage") // ← добавьте эту аннотацию
     private final FilmStorage filmStorage;
     private final UserService userService;
     private final Comparator<Film> filmComparator = Comparator.comparing((Film film) -> film.getUsersLikes().size()).reversed();
 
+    public FilmService(FilmStorage filmStorage, UserService userService) {
+        this.filmStorage = filmStorage;
+        this.userService = userService;
+    }
 
     public Collection<Film> getAllFilms() {
         return filmStorage.getFilms();
@@ -32,7 +38,6 @@ public class FilmService {
     public Film createFilm(Film film) {
         log.info("Добавлен фильм: {}", film);
         return filmStorage.addFilm(film);
-
     }
 
     public Film updateFilm(Film newFilm) {
@@ -56,6 +61,9 @@ public class FilmService {
             throw new OtherException("Пользователь уже ставил лайк фильму");
         }
 
+        // Добавляем лайк в БД
+        filmStorage.addLikeFilm(filmId, userId);
+
         log.info("Пользователь с id {} поставил лайк фильму с id {}", userId, filmId);
     }
 
@@ -64,6 +72,9 @@ public class FilmService {
             log.warn("Пользователь с id {} не ставил лайк фильму id {}", userId, filmId);
             throw new OtherException("Пользователь не ставил лайк фильму");
         }
+
+        // Удаляем лайк из БД
+        filmStorage.deleteLikeFilm(filmId, userId);
 
         log.info("Пользователь с id {} удалил свой лайк у фильма с id {}", userId, filmId);
     }

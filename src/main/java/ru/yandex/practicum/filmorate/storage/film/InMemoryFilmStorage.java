@@ -21,7 +21,9 @@ public class InMemoryFilmStorage implements FilmStorage {
     }
 
     public Optional<Film> getFilm(Long id) {
-        return Optional.ofNullable(films.get(id));
+        return films.values().stream()
+                .filter(film -> film.getId().equals(id))
+                .findFirst();
     }
 
     public Film addFilm(Film film) {
@@ -39,6 +41,14 @@ public class InMemoryFilmStorage implements FilmStorage {
         Optional.ofNullable(newFilm.getDuration()).ifPresent(oldFilm::setDuration);
         log.info("Обновлен фильм: {}", newFilm);
         return oldFilm;
+    }
+
+    public void addLikeFilm(Long filmId, Long userId) {
+        films.get(filmId).getUsersLikes().add(userId);
+    }
+
+    public void deleteLikeFilm(Long filmId, Long userId) {
+        films.get(filmId).getUsersLikes().remove(userId);
     }
 
     private long getNextId() {

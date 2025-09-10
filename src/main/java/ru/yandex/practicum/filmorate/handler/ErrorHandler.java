@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
+import ru.yandex.practicum.filmorate.exception.OtherException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 
 import java.util.HashMap;
@@ -66,5 +67,12 @@ public class ErrorHandler {
     public Map<String, String> handleNotFoundException(final NotFoundException ex) {
         log.warn("Не найдено: {}", ex.getMessage());
         return Map.of("error", "not found", "message", ex.getMessage());
+    }
+
+    @ExceptionHandler(OtherException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public Map<String, String> handleOtherException(final OtherException ex) {
+        log.warn("Ошибка бизнес-логики: {}", ex.getMessage());
+        return Map.of("error", ex.getMessage());
     }
 }

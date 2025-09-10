@@ -1,29 +1,32 @@
-package ru.yandex.practicum.filmorate.controller;
+package ru.yandex.practicum.filmorate;
 
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 //import org.junit.jupiter.api.Test;
 //import org.junit.jupiter.params.ParameterizedTest;
 //import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-//import org.springframework.http.MediaType;
+//import org.springframework.http.*;
+import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.web.servlet.MockMvc;
-import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.service.FilmGenreService;
 import ru.yandex.practicum.filmorate.service.FilmService;
+import ru.yandex.practicum.filmorate.service.MpaService;
 import ru.yandex.practicum.filmorate.service.UserService;
 
-import java.time.LocalDate;
 import java.util.stream.Stream;
 
+//import static org.junit.jupiter.api.Assertions.*;
 //import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 //import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 //import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
 @AutoConfigureMockMvc
+@AutoConfigureTestDatabase
+@Sql(scripts = "/setup.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+@Sql(scripts = "/cleanup.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
 class FilmControllerTest {
 
     @Autowired
@@ -35,24 +38,11 @@ class FilmControllerTest {
     @Autowired
     private UserService userService;
 
-    @BeforeEach
-    void setUp() {
-        // Очищаем данные перед каждым тестом, чтобы избежать конфликтов
-        filmService.clearFilmsData();
-        userService.clearUsersData();
+    @Autowired
+    private MpaService mpaService;
 
-        // Создаем тестовые данные
-        filmService.createFilm(new Film(null, "test1", "test_descr1", LocalDate.of(1900, 12, 25), 10));
-        filmService.createFilm(new Film(null, "test2", "test_descr2", LocalDate.of(1900, 12, 25), 10));
-        userService.createUser(new User(null, "test@mail.ru", "testlogin1", "testname1", LocalDate.of(1900, 12, 25)));
-        userService.createUser(new User(null, "test2@mail.ru", "testlogin2", "testname2", LocalDate.of(1901, 10, 21)));
-    }
-
-    @AfterEach
-    void tearDown() {
-        filmService.clearFilmsData();
-        userService.clearUsersData();
-    }
+    @Autowired
+    private FilmGenreService filmGenreService;
 
     static Stream<String> provideInvalidFilmJsonCreate() {
         return Stream.of(
@@ -143,7 +133,15 @@ class FilmControllerTest {
                         "  \"description\": \"Sci-fi action\",\n" +
                         "  \"releaseDate\": \"1900-12-25\",\n" +
                         "  \"duration\": -5\n" +
-                        "}" // Отрицательная длительность
+                        "}", // Отрицательная длительность
+
+                "{\n" +
+                        "  \"id\": 135,\n" +
+                        "  \"name\": \"The Matrix\",\n" +
+                        "  \"description\": \"Sci-fi action\",\n" +
+                        "  \"releaseDate\": \"1900-12-25\",\n" +
+                        "  \"duration\": -5\n" +
+                        "}" // неизвестный ид
         );
     }
 /*
@@ -152,9 +150,9 @@ class FilmControllerTest {
         mockMvc.perform(get("/films"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].id").value(1))
-                .andExpect(jsonPath("$[0].name").value("test1"))
+                .andExpect(jsonPath("$[0].name").value("testname1"))
                 .andExpect(jsonPath("$[1].id").value(2))
-                .andExpect(jsonPath("$[1].name").value("test2"));
+                .andExpect(jsonPath("$[1].name").value("testname2"));
     }
 
     @Test
@@ -162,7 +160,7 @@ class FilmControllerTest {
         mockMvc.perform(get("/films/1"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(1))
-                .andExpect(jsonPath("$.name").value("test1"));
+                .andExpect(jsonPath("$.name").value("testname1"));
     }
 
     @Test
@@ -185,8 +183,10 @@ class FilmControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(json))
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.id").value(3))
+                .andExpect(jsonPath("$.id").value(4))
                 .andExpect(jsonPath("$.name").value("The Matrix"));
+
+        assertEquals(filmService.getFilmById(4L).getName(), "The Matrix");
     }
 
     @Test
@@ -205,6 +205,11 @@ class FilmControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(1))
                 .andExpect(jsonPath("$.name").value("test1_upd"));
+
+        assertEquals("test1_upd", filmService.getFilmById(1L).getName());
+        assertEquals("test_descr1_upd", filmService.getFilmById(1L).getDescription());
+        assertEquals("1967-03-25", filmService.getFilmById(1L).getReleaseDate().toString());
+        assertEquals(100, filmService.getFilmById(1L).getDuration());
     }
 
     @ParameterizedTest
@@ -267,86 +272,93 @@ class FilmControllerTest {
 
     @Test
     void likeFilm() throws Exception {
-        mockMvc.perform(put("/films/1/like/1"))
-                .andExpect(status().isOk());
 
-        mockMvc.perform(put("/films/1/like/2"))
-                .andExpect(status().isOk());
+        mockMvc.perform(put("/films/3/like/2"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status").value("success"));
+
+        mockMvc.perform(put("/films/3/like/3"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status").value("success"));
+
+        assertEquals(2, filmService.getFilmById(3L).getUsersLikes().size());
     }
 
     @Test
     void deleteLikeFilm() throws Exception {
-        // Сначала ставим лайк
-        mockMvc.perform(put("/films/1/like/1"))
-                .andExpect(status().isOk());
+        filmService.likeFilm(1L, 1L);
+        filmService.likeFilm(1L, 2L);
+        filmService.likeFilm(1L, 3L);
 
-        // Затем удаляем его
         mockMvc.perform(delete("/films/1/like/1"))
-                .andExpect(status().isOk());
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status").value("success"));
+
+        mockMvc.perform(delete("/films/1/like/2"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status").value("success"));
+
+        mockMvc.perform(delete("/films/1/like/3"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status").value("success"));
+
+        assertEquals(0, filmService.getFilmById(1L).getUsersLikes().size());
     }
 
     @Test
     void likeUnknownFilm() throws Exception {
-        mockMvc.perform(put("/films/999/like/1"))
+        mockMvc.perform(put("/films/10/like/1"))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.error").value("not found"))
-                .andExpect(jsonPath("$.message").value("Фильм с id 999 не найден"));
+                .andExpect(jsonPath("$.message").value("Фильм с id 10 не найден"));
     }
 
     @Test
-    void likeFilmUnknownUser() throws Exception {
-        mockMvc.perform(put("/films/1/like/999"))
+    void likeFilmUnkownUser() throws Exception {
+        mockMvc.perform(put("/films/1/like/4"))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.error").value("not found"))
-                .andExpect(jsonPath("$.message").value("Юзер с id 999 не найден"));
+                .andExpect(jsonPath("$.message").value("Юзер с id 4 не найден"));
     }
 
     @Test
     void deleteUnknownLikeFilm() throws Exception {
-        mockMvc.perform(delete("/films/1/like/1"))
-                .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.error").value("not found"))
-                .andExpect(jsonPath("$.message").value("Лайк не найден"));
+        mockMvc.perform(delete("/films/2/like/3"))
+                .andExpect(status().isInternalServerError())
+                .andExpect(jsonPath("$.error").value("server error"))
+                .andExpect(jsonPath("$.message").value("Пользователь не ставил лайк фильму"));
     }
 
     @Test
-    void deleteLikeFilmUnknownUser() throws Exception {
-        mockMvc.perform(delete("/films/1/like/999"))
+    void deleteLikeFilmUnkownUser() throws Exception {
+        mockMvc.perform(delete("/films/1/like/4"))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.error").value("not found"))
-                .andExpect(jsonPath("$.message").value("Юзер с id 999 не найден"));
+                .andExpect(jsonPath("$.message").value("Юзер с id 4 не найден"));
     }
 
     @Test
-    void deleteLikeFilmUnknownFilm() throws Exception {
-        mockMvc.perform(delete("/films/999/like/1"))
+    void deleteLikeFilmUnkownFilm() throws Exception {
+        mockMvc.perform(delete("/films/10/like/1"))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.error").value("not found"))
-                .andExpect(jsonPath("$.message").value("Фильм с id 999 не найден"));
+                .andExpect(jsonPath("$.message").value("Фильм с id 10 не найден"));
     }
 
     @Test
-    void getPopularFilms() throws Exception {
-        // Создаем дополнительные фильмы и пользователей для теста популярности
-        filmService.createFilm(new Film(null, "test3", "test_descr3", LocalDate.of(1900, 12, 25), 10));
-        userService.createUser(new User(null, "test3@mail.ru", "testlogin3", "testname3", LocalDate.of(1900, 12, 25)));
-
-        // Ставим лайки
-        mockMvc.perform(put("/films/3/like/1")).andExpect(status().isOk());
-        mockMvc.perform(put("/films/3/like/2")).andExpect(status().isOk());
-        mockMvc.perform(put("/films/1/like/3")).andExpect(status().isOk());
-
+    void get2PopularFilms() throws Exception {
         mockMvc.perform(get("/films/popular?count=2"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(2))
-                .andExpect(jsonPath("$[0].id").value(3)) // Самый популярный
-                .andExpect(jsonPath("$[1].id").value(1)); // Второй по популярности
+                .andExpect(jsonPath("$[0].id").value(1))
+                .andExpect(jsonPath("$[1].name").value("testname2"));
     }
 
     @Test
     void getDefaultPopularFilms() throws Exception {
         mockMvc.perform(get("/films/popular"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.length()").value(2)); // Должны вернуться все 2 фильма
-    }*/
+                .andExpect(jsonPath("$.length()").value(3));
+    }
+*/
 }
